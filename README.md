@@ -12,3 +12,4 @@ pip install -r requirements.txt
 * Terminal commands
 * use alt recognizer if no internet connection
 * make the commands use audio
+* make the code neater
