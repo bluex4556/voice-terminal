@@ -1,3 +1,5 @@
+from pydub import AudioSegment
+from gtts import gTTS
 import speech_recognition as sr
 import pyaudio
 import time
@@ -26,19 +28,19 @@ def recognizespeech():
 
     try:
         data = r.recognize_google(audio)
+        return data
     except sr.UnknownValueError:
-        print("Google Speech Recognition could not understand audio")
+        return ("Google Speech Recognition could not understand audio")
     except sr.RequestError as e:
-        print("Could not request results from Google Speech Recognition service; {0}".format(e))
-    return data
+        return ("Could not request results from Google Speech Recognition service; {0}".format(e))
 
 def readwavfile():
     #opens a wav file
-    wf = wave.open('output.wav','rb')
+    wf = wave.open('tts.wav','rb')
     p = pyaudio.PyAudio()
     stream = p.open(format=FORMAT,
                 channels=CHANNELS,
-                rate=RATE,
+                rate=12700,
                 output=True)
     
     #takes data chunks at a time
@@ -88,6 +90,20 @@ def makewavfile():
     wf.writeframes(b''.join(frames))
     wf.close()
 
+def recordAudio():
+    # Record Audio
+    r = sr.Recognizer()
+    with sr.Microphone() as source:
+        print("Say something!")
+    audio = r.listen(source)
+
+def saytts(content):
+    tts = gTTS(text=content, lang='en')
+    tts.save("tts.mp3")
+    sound = AudioSegment.from_mp3("tts.mp3")
+    sound.export("tts.wav", format="wav")
+    readwavfile()
+
 def displaymenu():
     print("------------------------------------------------------------------------------------------------------")
     print("                                            S-H-E-L-L")
@@ -110,7 +126,7 @@ def keyboardinput():
     if(n==1):
         x=input('Enter dir name:   ')
         os.mkdir(x)
-        print("Directory Added successfully!")
+        saytts("directory added succesfully")
     
     if(n==2):
         x=input('Enter dir name to be deleted:   ')
@@ -165,49 +181,56 @@ def speechinput():
         time.sleep(2)
 
         makewavfile()
-        #readwavfile()
-
         cspeech = recognizespeech()
-
         print(cspeech)
         if (cspeech == "make directory" or cspeech=="one"):
-            x=input('Enter dir name:   ')
+            makewavfile()
+            x=recognizespeech()
             os.mkdir(x)
+            saytts("Directory added successfully")
             print("Directory Added successfully!")
 
         elif(cspeech=="delete directory" or cspeech=="two"):
-            x=input('Enter dir name to be deleted:   ')
+            makewavfile()
+            x=recognizespeech()
             try:
                 os.rmdir(x)
             except:
                 print("Directory doesnt exist")
 
         elif (cspeech=="create file"):
-            x=input('Enter file-name:   ')
+            makewavfile()   
+            x=recognizespeech()
             file=open(x,'w')
 
         elif (cspeech=="delete file"):
-            x=input('Enter file-name to be deleted:   ')
+            makewavfile()
+            x=recognizespeech()
             try:
                 os.remove(x)
             except:
+                saytts("File does not exist")
                 print("File doesnt exist")
 
         elif (cspeech=="rename file"):
-            x=input('Enter file-name to be deleted:   ')
+            makewavfile()
+            x=recognizespeech()
             try:
                 os.remove(x)
             except:
+                saytts("File does not exist")
                 print("File doesnt exist")
 
         elif(cspeech=="read file"):
-            x=input('Enter file-name  :   ')
+            makewavfile()
+            x=recognizespeech()
             file=open(x,'r')
             content=file.read()
             print(content)
 
         elif(cspeech=="edit file"):
-            x=input('Enter file-name    :   ')
+            makewavfile()
+            x=recognizespeech()
             print('\n'*2)
             print("______________________________________________________________________________________")
             print('\n'*2)
@@ -223,7 +246,8 @@ def speechinput():
             exit()
         
         else:
-            print('command not recognized')
+            saytts("command not found")
+            print("command not found")
 
 
 speechinput()
