@@ -5,37 +5,50 @@ import sys
 import wave
 import os
 
+#amount of data used at a time
 CHUNK = 1024
-FORMAT = pyaudio.paInt16
+#input and output to .wav file 
+FORMAT = pyaudio.paInt16 
 CHANNELS = 2
 RATE = 44100
+#amont of seconds to record at a time
 RECORD_SECONDS = 4
 
+#function to convert speech to text
 def recognizespeech():
+    #r has the speech recognizer class
     r =sr.Recognizer()
+    #takes the audio from the output  
     audiosource = sr.AudioFile('output.wav')
     with audiosource as source:
         audio = r.record(source)
     #Prints the recognized data
-    return r.recognize_google(audio)
+
+    try:
+        data = r.recognize_google(audio)
+    except sr.UnknownValueError:
+        print("Google Speech Recognition could not understand audio")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+    return data
 
 def readwavfile():
     #opens a wav file
     wf = wave.open('output.wav','rb')
     p = pyaudio.PyAudio()
-    stream = p.open(format=p.get_format_from_width(wf.getsampwidth()),
-                channels=wf.getnchannels(),
-                rate=wf.getframerate(),
+    stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
                 output=True)
-
+    
+    #takes data chunks at a time
     data = wf.readframes(CHUNK)
 
-
+    #reads out data from wav file
     while len(data) > 0:
         stream.write(data)
         data = wf.readframes(CHUNK)
-    
-
+        
     stream.stop_stream()
     stream.close()
 
@@ -43,6 +56,7 @@ def readwavfile():
 
 def makewavfile():
     p = pyaudio.PyAudio()
+    #records from microphone and outputs it to output.wav file
     WAVE_OUTPUT_FILENAME = "output.wav"
 
     stream = p.open(format=FORMAT,
@@ -55,6 +69,8 @@ def makewavfile():
 
     frames = []
 
+    #gets frame chunks one at a time and appends it
+    
     for i in range(0, int(RATE / CHUNK * RECORD_SECONDS)):
         data = stream.read(CHUNK)
         frames.append(data)
@@ -100,7 +116,7 @@ def keyboardinput():
         x=input('Enter dir name to be deleted:   ')
         try:
             os.rmdir(x)
-        except Exception as e:
+        except:
             print("Directory doesnt exist")
     
     if(n==3):
@@ -111,7 +127,7 @@ def keyboardinput():
         x=input('Enter file-name to be deleted:   ')
         try:
             os.remove(x)
-        except Exception as e:
+        except:
             print("File doesnt exist")
     
     if(n==5):
@@ -119,7 +135,7 @@ def keyboardinput():
         y=input('Enter new file-name       :   ')
         try:
             os.rename(x,y)
-        except Exception as e:
+        except:
             print("File doesnt exist")
     
     if(n==6):
@@ -163,7 +179,7 @@ def speechinput():
             x=input('Enter dir name to be deleted:   ')
             try:
                 os.rmdir(x)
-            except Exception as e:
+            except:
                 print("Directory doesnt exist")
 
         elif (cspeech=="create file"):
@@ -174,14 +190,14 @@ def speechinput():
             x=input('Enter file-name to be deleted:   ')
             try:
                 os.remove(x)
-            except Exception as e:
+            except:
                 print("File doesnt exist")
 
         elif (cspeech=="rename file"):
             x=input('Enter file-name to be deleted:   ')
             try:
                 os.remove(x)
-            except Exception as e:
+            except:
                 print("File doesnt exist")
 
         elif(cspeech=="read file"):
