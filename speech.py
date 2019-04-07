@@ -95,7 +95,13 @@ def recordAudio():
     r = sr.Recognizer()
     with sr.Microphone() as source:
         print("Say something!")
-    audio = r.listen(source)
+        audio = r.listen(source)
+    data = r.recognize_google(audio)
+    print("You said: " + data)
+    except sr.UnknownValueError:
+        print("Google Speech Recognition could not understand audio")
+    except sr.RequestError as e:
+        print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
 def saytts(content):
     tts = gTTS(text=content, lang='en')
@@ -196,6 +202,7 @@ def speechinput():
             try:
                 os.rmdir(x)
             except:
+                saytts("Directory does not exist")
                 print("Directory doesnt exist")
 
         elif (cspeech=="create file"):
