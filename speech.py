@@ -91,17 +91,30 @@ def makewavfile():
     wf.close()
 
 def recordAudio():
-    # Record Audio
-    r = sr.Recognizer()
-    with sr.Microphone() as source:
-        print("Say something!")
-        audio = r.listen(source)
-    data = r.recognize_google(audio)
-    print("You said: " + data)
-    except sr.UnknownValueError:
-        print("Google Speech Recognition could not understand audio")
-    except sr.RequestError as e:
-        print("Could not request results from Google Speech Recognition service; {0}".format(e))
+    all = []
+    p = pyaudio.PyAudio()
+    WAVE_OUTPUT_FILENAME = "output.wav"
+    stream = p.open(format=FORMAT,
+                channels=CHANNELS,
+                rate=RATE,
+                input=True,
+                frames_per_buffer=CHUNK)
+
+    try:
+        while True:
+            data = stream.read(CHUNK)
+            all.append(data)
+    except KeyboardInterrupt:
+        stream.stop_stream()
+        stream.close()
+        p.terminate()
+        wf = wave.open(WAVE_OUTPUT_FILENAME, 'wb')
+        wf.setnchannels(CHANNELS)
+        wf.setsampwidth(p.get_sample_size(FORMAT))
+        wf.setframerate(RATE)
+        wf.writeframes(b''.join(all))
+        wf.close()
+    print ("* done recording")
 
 def saytts(content):
     tts = gTTS(text=content, lang='en')
@@ -189,14 +202,18 @@ def speechinput():
         makewavfile()
         cspeech = recognizespeech()
         print(cspeech)
-        if (cspeech == "make directory" or cspeech=="one"):
+        if(cspeech == "make directory" or cspeech=="one" or cspeech=="1"):
+            print("say  directory name")
+            saytts("say  directory name")            
             makewavfile()
             x=recognizespeech()
             os.mkdir(x)
             saytts("Directory added successfully")
             print("Directory Added successfully!")
 
-        elif(cspeech=="delete directory" or cspeech=="two"):
+        elif(cspeech=="delete directory" or cspeech=="two" or cspeech=="2"):
+            print("say directory name")
+            saytts("say directory name")   
             makewavfile()
             x=recognizespeech()
             try:
@@ -205,12 +222,16 @@ def speechinput():
                 saytts("Directory does not exist")
                 print("Directory doesnt exist")
 
-        elif (cspeech=="create file"):
+        elif (cspeech=="create file" or cspeech == "3"):
+            print("say file name")
+            saytts("say file name")  
             makewavfile()   
             x=recognizespeech()
             file=open(x,'w')
 
-        elif (cspeech=="delete file"):
+        elif (cspeech=="delete file" or cspeech == "4"):
+            print("say file name")
+            saytts("say file name") 
             makewavfile()
             x=recognizespeech()
             try:
@@ -219,7 +240,9 @@ def speechinput():
                 saytts("File does not exist")
                 print("File doesnt exist")
 
-        elif (cspeech=="rename file"):
+        elif (cspeech=="rename file" or cspeech =="5"):
+            print("say file name")
+            saytts("say file name") 
             makewavfile()
             x=recognizespeech()
             try:
@@ -228,33 +251,42 @@ def speechinput():
                 saytts("File does not exist")
                 print("File doesnt exist")
 
-        elif(cspeech=="read file"):
+        elif(cspeech=="read file" or cspeech == "6"):
+            print("say file name")
+            saytts("say file name") 
             makewavfile()
             x=recognizespeech()
             file=open(x,'r')
             content=file.read()
             print(content)
 
-        elif(cspeech=="edit file"):
+        elif(cspeech=="edit file" or cspeech == "7"):
+            print("say file name")
+            saytts("say file name") 
             makewavfile()
             x=recognizespeech()
             print('\n'*2)
             print("______________________________________________________________________________________")
             print('\n'*2)
             file=open(x,'w')
-            y=input('>')
+            print('Press Crtl+C to stop edititng')
+            recordAudio()
+            y=recognizespeech()
             file.write(y)
             file.close()
 
-        elif (cspeech=="keyboard"):
+        elif (cspeech=="keyboard" or cspeech=="8"):
             keyboardinput()
 
-        elif(cspeech=="stop" or cspeech=="exit"):
+        elif(cspeech=="stop" or cspeech=="exit" or cspeech=="9"):
             exit()
         
         else:
             saytts("command not found")
             print("command not found")
 
+def main():
+    speechinput()
 
-speechinput()
+if __name__ == "__main__":
+    main()
