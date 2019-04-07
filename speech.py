@@ -128,6 +128,7 @@ def displaymenu():
     print("                                            S-H-E-L-L")
     print("-------------------------------------------------------------------------------------------------------")
     print("Options")
+    print("[0] Help")
     print("[1] Create Directory")
     print("[2] Delete Directory")
     print("[3] Create File")
@@ -136,36 +137,41 @@ def displaymenu():
     print("[6] Display File Content")
     print("[7] Edit File")
     print("[8] Switch Between Speech and Keyboard")
-    print("[9] Exit")
+    print("[9] List files")
+    print("[10] Change Directory")
+    print("[11] Current directory")
+    print("[12] Exit")
 
 def keyboardinput():        
     displaymenu()
     n= int(input('Choose Command>>:  '))
     
-    if(n==1):
+    if n==0:
+        displaymenu()
+    elif(n==1):
         x=input('Enter dir name:   ')
         os.mkdir(x)
         saytts("directory added succesfully")
     
-    if(n==2):
+    elif(n==2):
         x=input('Enter dir name to be deleted:   ')
         try:
             os.rmdir(x)
         except:
             print("Directory doesnt exist")
     
-    if(n==3):
+    elif(n==3):
         x=input('Enter file-name:   ')
         file=open(x,'w')
     
-    if(n==4):
+    elif(n==4):
         x=input('Enter file-name to be deleted:   ')
         try:
             os.remove(x)
         except:
             print("File doesnt exist")
     
-    if(n==5):
+    elif(n==5):
         x=input('Enter old file-name :   ')
         y=input('Enter new file-name       :   ')
         try:
@@ -173,13 +179,13 @@ def keyboardinput():
         except:
             print("File doesnt exist")
     
-    if(n==6):
+    elif(n==6):
         x=input('Enter file-name  :   ')
         file=open(x,'r')
         content=file.read()
         print(content)
 
-    if(n==7):
+    elif(n==7):
         x=input('Enter file-name    :   ')
         print('\n'*2)
         print("______________________________________________________________________________________")
@@ -189,20 +195,35 @@ def keyboardinput():
         file.write(y)
         file.close()
     
-    if(n==8):
+    elif(n==8):
         speechinput()
-    if (n==9):
+
+    elif (n==10):
+        x = input("Enter directory name: ")
+        txt = os.getcwd()
+        directory = txt + "\\" + x
+        print(directory)
+        os.chdir(directory)
+        print(os.getcwd()) 
+    
+    elif(n==11):
+        os.getcwd()
+
+    elif(n==12):
         exit()
 
 def speechinput():    
     displaymenu()
     while True:    
         time.sleep(2)
-
         makewavfile()
         cspeech = recognizespeech()
         print(cspeech)
-        if(cspeech == "make directory" or cspeech=="one" or cspeech=="1"):
+        
+        if(cspeech=="0" or cspeech=="zero" or cspeech=="hello"):
+            displaymenu()
+
+        elif(cspeech == "make directory" or cspeech=="one" or cspeech=="1"):
             print("say  directory name")
             saytts("say  directory name")            
             makewavfile()
@@ -278,7 +299,24 @@ def speechinput():
         elif (cspeech=="keyboard" or cspeech=="8"):
             keyboardinput()
 
-        elif(cspeech=="stop" or cspeech=="exit" or cspeech=="9"):
+        elif(cspeech=="list files" or cspeech=="9" or cspeech=="LS" or cspeech=="list file"):
+            print(os.listdir())
+        
+        elif(cspeech=="change directory" or cspeech=="10" or cspeech=="CD"):
+            print("say directory name")
+            saytts("say directory name") 
+            makewavfile()
+            x=recognizespeech()
+            txt = os.getcwd()
+            directory = txt + "\\" + x
+            print(directory)
+            os.chdir(directory)
+            print(os.getcwd())
+        
+        elif(cspeech=="current directory" or cspeech=="11" or cspeech=="PWD"):
+            print(os.getcwd)
+        
+        elif(cspeech=="stop" or cspeech=="exit" or cspeech=="12"):
             exit()
         
         else:
