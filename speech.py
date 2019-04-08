@@ -1,11 +1,14 @@
 from pydub import AudioSegment
 from gtts import gTTS
 import speech_recognition as sr
+from twilio.rest import Client
 import pyaudio
 import time
 import sys
 import wave
 import os
+import webbrowser
+
 
 #amount of data used at a time
 CHUNK = 1024
@@ -123,13 +126,13 @@ def saytts(content):
     sound.export("tts.wav", format="wav")
     readwavfile()
 
-def displaymenu():
+def displaymenu():    
     print("------------------------------------------------------------------------------------------------------")
     print("                                            S-H-E-L-L")
     print("-------------------------------------------------------------------------------------------------------")
     print("Options")
     print("[0] Help")
-    print("[1] Create Directory")
+    print("[1] Make Directory")
     print("[2] Delete Directory")
     print("[3] Create File")
     print("[4] Delete File")
@@ -140,7 +143,10 @@ def displaymenu():
     print("[9] List files")
     print("[10] Change Directory")
     print("[11] Current directory")
-    print("[12] Exit")
+    print("[12] Find my phone")
+    print("[13] Where am I")
+    print("[14] Exit")
+
 
 def keyboardinput():        
     displaymenu()
@@ -151,7 +157,7 @@ def keyboardinput():
     elif(n==1):
         x=input('Enter dir name:   ')
         os.mkdir(x)
-        saytts("directory added succesfully")
+        #saytts("directory added succesfully")
     
     elif(n==2):
         x=input('Enter dir name to be deleted:   ')
@@ -225,67 +231,67 @@ def speechinput():
 
         elif(cspeech == "make directory" or cspeech=="one" or cspeech=="1"):
             print("say  directory name")
-            saytts("say  directory name")            
+            #saytts("say  directory name")            
             makewavfile()
             x=recognizespeech()
             os.mkdir(x)
-            saytts("Directory added successfully")
+            #saytts("Directory added successfully")
             print("Directory Added successfully!")
 
         elif(cspeech=="delete directory" or cspeech=="two" or cspeech=="2"):
             print("say directory name")
-            saytts("say directory name")   
+            #saytts("say directory name")   
             makewavfile()
             x=recognizespeech()
             try:
                 os.rmdir(x)
             except:
-                saytts("Directory does not exist")
+                #saytts("Directory does not exist")
                 print("Directory doesnt exist")
 
         elif (cspeech=="create file" or cspeech == "3"):
             print("say file name")
-            saytts("say file name")  
+            #saytts("say file name")  
             makewavfile()   
-            x=recognizespeech()
+            x=recognizespeech() + ".txt"
             file=open(x,'w')
 
         elif (cspeech=="delete file" or cspeech == "4"):
             print("say file name")
-            saytts("say file name") 
+            #saytts("say file name") 
             makewavfile()
-            x=recognizespeech()
+            x=recognizespeech() + ".txt"
             try:
                 os.remove(x)
             except:
-                saytts("File does not exist")
+                #saytts("File does not exist")
                 print("File doesnt exist")
 
         elif (cspeech=="rename file" or cspeech =="5"):
             print("say file name")
-            saytts("say file name") 
+            #saytts("say file name") 
             makewavfile()
-            x=recognizespeech()
+            x=recognizespeech() + ".txt"
             try:
                 os.remove(x)
             except:
-                saytts("File does not exist")
+                #saytts("File does not exist")
                 print("File doesnt exist")
 
         elif(cspeech=="read file" or cspeech == "6"):
             print("say file name")
-            saytts("say file name") 
+            #saytts("say file name") 
             makewavfile()
-            x=recognizespeech()
+            x=recognizespeech() + ".txt"
             file=open(x,'r')
             content=file.read()
             print(content)
 
         elif(cspeech=="edit file" or cspeech == "7"):
             print("say file name")
-            saytts("say file name") 
+            #saytts("say file name") 
             makewavfile()
-            x=recognizespeech()
+            x=recognizespeech() + ".txt"
             print('\n'*2)
             print("______________________________________________________________________________________")
             print('\n'*2)
@@ -304,7 +310,7 @@ def speechinput():
         
         elif(cspeech=="change directory" or cspeech=="10" or cspeech=="CD"):
             print("say directory name")
-            saytts("say directory name") 
+            #saytts("say directory name") 
             makewavfile()
             x=recognizespeech()
             txt = os.getcwd()
@@ -316,11 +322,25 @@ def speechinput():
         elif(cspeech=="current directory" or cspeech=="11" or cspeech=="PWD"):
             print(os.getcwd)
         
-        elif(cspeech=="stop" or cspeech=="exit" or cspeech=="12"):
+        elif(cspeech=="stop" or cspeech=="exit" or cspeech=="14"):
             exit()
         
+        elif(cspeech=="find my phone" or cspeech=="12"):
+            account_sid = "AC6b0ba6d168fe1a1430a722175bff1276"
+            auth_token = "6d4ebb736d0841eb2cc96c6bde68cb01"
+            client = Client(account_sid, auth_token)
+            call= client.calls.create(
+                    to="+917639993250",
+                    from_="+1 469 314 9196",
+                    url="http://demo.twilio.com/docs/voice.xml"
+            )
+            print(call.sid)
+            time.sleep(3)
+        elif(cspeech=="location" or cspeech=="where am I" or cspeech=="13"):
+            url="map.html"
+            webbrowser.open(url,new=2)
         else:
-            saytts("command not found")
+            #saytts("command not found")
             print("command not found")
 
 def main():
